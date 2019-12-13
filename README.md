@@ -3,14 +3,21 @@ Invert the inversion of control using channels and goroutines.
 
 ## Design
 1. All incoming http requests are processed in the context of a session.
+
    If the session information (stored as a session cookie) is missing or invalid, a new session will be created to process that request.
+
 2. Each session corresponds to a goroutine.
+
    Goroutines are spawned when sessions are created. When a goroutine returns, the corresponding session expires.
+
 3. A function that will be executed as such a goroutine is called a `flow`.
+
    ```
    type flow func(chan struct{}, chan *Request)
    ```
+
    Closing `chan struct{}` signals the expiry of this session.
+
    All http requests that belong to this session can be received from `chan *Request`.
 
 ## Example 1
